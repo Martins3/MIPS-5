@@ -4,12 +4,10 @@ module data_route(
     input ram_addr_dispaly[5:0],
     input rst, 
     input frequency, 
-    input restart, 
     input[2:0] display, 
     
     output [7:0] AN, 
     output [7:0] SEG
-
     );
 
 
@@ -19,34 +17,40 @@ module data_route(
     frequency_switch frequency_switch_0(clk1, clk, frequency);
     // 用于展示 ram
     wire [31:0] ram_display;
+    // when stop or halt, freeze all the buffer
+    wire go;
+    assign go = stop && halt;
 ////////////////////////////////////////////////////////////////////////////////
 
 
 
 /////////////////////////////////IF Area////////////////////////////////////////
     // pc 
-    wire [11:0]pc;
+    wire [11:0]pc
+    wire stop；
+    
+    wire assign stop = 1'b1;
+    wire pc_enable = halt && stop && (!bubble);
+    program_counter p_c_0(pc_in, clk, rst, pc_enable, pc);
     wire [9:0]addr;
     wire [11:0] pc_4;
     assign addr = pc[11:2];
     assign pc_4 = pc + 4;
-
     // IM
     wire [31:0] instruction;
     IM im(addr, instruction);
-
     // ctrl
-    wire [11:0] new_pc；
-    MUX_2#12 mux_2_123(n_ctrl_clash, npc, pc_4, new_pc, 0);
+    wire [11:0] pc_in；
+    MUX_2#12 mux_2_123(n_ctrl_clash, npc, pc_4, pc_in, 0);
 ////////////////////////////////////////////////////////////////////////////////
 
 
 
-/////////////////////////////////IF Area////////////////////////////////////////
+/////////////////////////////////ID Area////////////////////////////////////////
     wire [11:0] pc_4_ID;
     wire [31:0] instruction_ID;
-    IF_ID if_id(pc_4, instruction, ****, ****, ****, clk, pc_4_ID, instruction_ID);
-    // IF_ID if_id(pc_4, instruction, clear, go_one, go_two, clk, pc_4_ID, instruction_ID);
+    IF_ID if_id(pc_4, instruction, ctrl_clash, go, n_bubble, clk, pc_4_ID, instruction_ID);
+
     wire [1:0]rA_t;
     module RA_ctrl(instruction_ID, rA_t);
 
@@ -64,6 +68,7 @@ module data_route(
     wire bubble;
     redirection redirection_0(rA, rB, rw_exe, WE_exe_alu, WE_exe_mem, rw_mem, WE_rw,
     A_ALU, B_ALU, A_mem, B_mem, bubble); // 通道名
+    wire n_bubble; assign bubble = !bubble;
 
     wire [3:0]redirection_ctrl_ID;
     assign redirection_ctrl_ID = {{B_mem},{B_ALU}, {A_mem}, {A_ALU}};
@@ -77,7 +82,7 @@ module data_route(
     wire [31:0] instruction_EXE;
     wire [31:0] pc_4_EXE;
     wire [3:0] redirect_ctrl;
-    ID_EX id_ex(pc_4_ID, instruction_ID, A_ori, B_ori, redirect_ctrl_ID, go, clear_one, clear_two, clk,
+    ID_EX id_ex(pc_4_ID, instruction_ID, A_ori, B_ori, redirect_ctrl_ID, go, bubble, ctrl_clash, clk,
     pc_4_EXE, instruction_EXE, A_EXE, B_EXE, redirect_ctrl);
     // go clear_one clear_two 
 
@@ -141,7 +146,7 @@ module data_route(
     condi_jump c_j_0(A, B, blez, beq, bne, condi_suc);
 
     wire strong_halt;
-    assign strong_halt = stop & halt;
+    assign strong_halt = stop_g & halt;
     wire [31:0]total_cycles;
     wire [31:0]uncondi_num;
     wire [31:0]condi_num;
@@ -169,7 +174,7 @@ module data_route(
     wire [31:0] A_mem;
     wire [31:0] B_mem;
     EXE_MEM exe_mem_0( instruction, ctrl_msg, alu, A, B, 
-        go, clear, clk, 
+        go, 1'b1, clk, 
         instruction_mem, ctrl_msg_mem, alu_out, A_mem, B_mem);
 
     wire half_word;
@@ -214,18 +219,29 @@ module data_route(
     wire syscall_wb;
 
     MEM_WB mem_out_0( syscall_mem, WE_mem, rw_mem, A_mem, w_mem, 
-    go, clear, clk, 
+    go, 1'b1, clk, 
     syscall_wb, WE_out, RW_out, A_out, w_out);
 
     wire halt;
-    wire stop;
+    wire stop_g;
     
-    assign halt = (A_wb == 32'ha) && syscall_wb;
-    assign stop = (A_wb == 32'h32) && syscall_wb;
+    assign halt = !((A_wb == 32'ha) && syscall_wb);
+    assign stop_g = !((A_wb == 32'h32) && syscall_wb);
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////Show Area///////////////////////////////////////
-
+    Data_Choose show_data(
+    display,
+    ram_display,
+    total_cycles,
+    condi_num,
+    uncondi_num,
+    condi_suc_num,
+    SyscallOut,
+    pc,
+    clk1, 
+    AN,
+    SEG);
 ////////////////////////////////////////////////////////////////////////////////
 
 
