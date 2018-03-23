@@ -13,7 +13,10 @@ module controller(
     output bne,
     output RAM_STO,
     output RAM_LOAD,
-    output hald_word
+    output hald_word,
+    output branch,
+    output unbranch,
+    output syscall,
     );
 
         //　生成的　funct  op  和　is_R
@@ -86,5 +89,11 @@ module controller(
         assign RAM_LOAD = (!is_R && op == 6'b100001) || (!is_R && op == 6'b100011);
 
         assign hald_word = (!is_R && op == 6'b101011);
+        
+        assign branch = (!is_R && (op == 6'b000110 || op == 6'b000100 || op == 6'b000101));
+
+        assign unbranch = (!is_R && (op == 6'b100001 || op == 6'b100011 || op == 6'b101011));
+        
+        assign syscall = (is_R && funct == 6'b001100);
 endmodule
 

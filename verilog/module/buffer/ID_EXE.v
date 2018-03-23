@@ -1,4 +1,4 @@
-module IF_ID(
+module ID_EXE(
     input [11:0] pc_4
     input [31:0] instruction,
     input [31:0] A,
@@ -11,9 +11,10 @@ module IF_ID(
     input clk,
 
     output reg [11:0] pc_4_out,
+    output reg [31:0] instruction_out,
     output reg [31:0] A_out,
     output reg [31:0] B_out,
-    
+    output reg [3:0] redirect_ctrl_out,
     );
 
     wire clear;
