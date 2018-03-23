@@ -1,5 +1,5 @@
 // maybe there are bugs about instruction_32_left2_temp
-module npc(
+module npc_generator(
     input [31:0] instruction,
     input [31:0] A,
     input [11:0] pc_4,
@@ -20,6 +20,8 @@ module npc(
     wire [31:0]mux_out1;
     wire [31:0]mux_out2;    
 
+    wire [31:0] npc_32;
+
     // from top to down three line
     assign pc_32 = {{20{1'b0}} , pc_4};
     assign instruction_26_left2 = {instruction[25:0], 2'b00};
@@ -37,7 +39,10 @@ module npc(
 
     MUX_2 #32 mux_2(PC_MUX_2, j_im26, mux_out1, mux_out2, 0);
 
-    MUX_2 #32 mux_3(PC_MUX_3, mux_out2, A, npc, 0);
+    MUX_2 #32 mux_3(PC_MUX_3, mux_out2, A, npc_32, 0);
+
+    assign npc = npc_32[11:0];
+
 
 endmodule
 
