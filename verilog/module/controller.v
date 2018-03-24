@@ -16,7 +16,7 @@ module controller(
     output hald_word,
     output branch,
     output unbranch,
-    output syscall,
+    output syscall
     );
 
         //　生成的　funct  op  和　is_R

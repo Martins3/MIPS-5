@@ -3123,7 +3123,7 @@ afb50000 27bdfffc afb60000 27bdfffc afa40000 27bdfffc afa20000 20160003
       <a name="value" val="0x0"/>
     </comp>
     <comp lib="0" loc="(160,320)" name="Pin">
-      <a name="label" val="WE_rw"/>
+      <a name="label" val="WE_mem"/>
     </comp>
     <comp lib="0" loc="(240,740)" name="Tunnel">
       <a name="facing" val="east"/>

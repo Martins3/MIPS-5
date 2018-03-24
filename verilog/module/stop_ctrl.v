@@ -1,4 +1,4 @@
-module program_counter(
+module stop_ctrl(
     input clk, 
     input continue,
     input stop
