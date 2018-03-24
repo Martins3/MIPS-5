@@ -12,7 +12,7 @@ module RA_ctrl(
     
     assign op = instruction[31:26];
     assign funct = instruction[5:0];
-    assign is_R = op[0] | op[1] | op[2] | op[3] | op[4] | op[5]; 
+    assign is_R = !(op[0] | op[1] | op[2] | op[3] | op[4] | op[5]); 
 
     // 对于的Ra Rb 的控制信号
     assign R = (is_R && (funct == 6'b100000|| funct == 6'b100001|| funct == 6'b100100|| funct == 6'b100010|| funct == 6'b100101|| funct == 6'b100111|| funct == 6'b101010|| funct == 6'b101011)) ? 2'b00: 2'bz, 

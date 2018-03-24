@@ -8,6 +8,10 @@ module program_counter(
     output reg [11:0] pc
     );
 
+    initial begin
+        pc = 0;
+    end
+
     
     always @(posedge clk) begin
         if(rst) begin

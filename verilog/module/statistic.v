@@ -24,6 +24,15 @@ module statistic(
 
     assign is_show = (A == 34) && syscall_t;
 
+    initial begin
+        total_cycles = 0;
+        uncondi_num = 0;
+        condi_num = 0;
+        condi_suc_num = 0;
+        SyscallOut = 0;
+    end
+    
+
 
     always @(posedge clk) begin
       if(rst) begin

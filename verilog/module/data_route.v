@@ -91,8 +91,6 @@ module data_route(
     wire[31:0] A_id;
     wire[31:0] B_id;
     Registers registers(rA, rB, rw_wb, WE_wb, word_wb, clk, A_id, B_id);
-    wire A_ALU;
-    wire B_ALU;
 
     wire A_alu_red;
     wire B_alu_red;
