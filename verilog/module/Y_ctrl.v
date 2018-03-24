@@ -23,8 +23,8 @@ module Y_ctrl(
     assign unsinged_im = {16'b0, im};
 
     
-    MUX_2 #32 mux_1(ori_andi, signed_im, unsinged_im, mux_1_out,0);
-    MUX_4 #32 mux_2(Y_t, B, shamt, 0, mux_1_out, Y ,0);
+    MUX_2 #32 mux_1(ori_andi, signed_im, unsinged_im, mux_1_out, 0);
+    MUX_4 #32 mux_2(Y_t, B, shamt, 0, mux_1_out, Y, 0);
     
 endmodule
 

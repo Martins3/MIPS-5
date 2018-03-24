@@ -31,7 +31,6 @@ module statistic(
         uncondi_num = 0;
         condi_num = 0;
         condi_suc_num = 0;
-        halt  = 0;
       end else begin
         if(strong_halt) begin
             total_cycles = total_cycles + 1;
