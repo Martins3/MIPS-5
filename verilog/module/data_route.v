@@ -24,21 +24,22 @@ module data_route(
     wire ctrl_clash;
     wire [31:0] w_wb;
     wire [31:0] A_wb;
-    wire [31:0] rw_wb;
+    wire [4:0] rw_wb;
     wire WE_wb;
     
-    wire [31:0] B;
+    wire [31:0] A_exe;
+    wire [31:0] B_exe;
     wire [31:0] alu_out;
     wire WE_exe_alu;
     wire WE_exe_mem;
     wire WE_mem;
-    wire [1:0] rw_exe;
+    wire [4:0] rw_exe;
     wire [4:0] rw_mem;
     
     wire bubble;
     wire stop_g;
-    wire A_mem;
-    wire B_mem;
+    wire [31:0] A_mem;
+    wire [31:0] B_mem;
     
      // when stop or halt, freeze all the buffer
      wire go;
@@ -66,7 +67,7 @@ module data_route(
     // ctrl
    
     wire n_ctrl_clash;
-    MUX_2 #12 mux_2_123(n_ctrl_clash, npc, pc_4, pc_in, 0);
+    MUX_2 #12 mux_2_123(n_ctrl_clash, npc, pc_4, pc_in, 1'b0);
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -74,9 +75,8 @@ module data_route(
 /////////////////////////////////id Area////////////////////////////////////////
     wire [11:0] pc_4_id;
     wire [31:0] instruction_id;
-    wire n_bubble;
     wire clear_if_id;
-    assign clear_if_id = n_bubble | rst;
+    assign clear_if_id = (!bubble) && rst;
     IF_ID if_id(pc_4, instruction, ctrl_clash, go, clear_if_id, clk, pc_4_id, instruction_id);
 
     wire [1:0]rA_t;
@@ -86,32 +86,34 @@ module data_route(
     wire[4:0] rB;
     read_reg_ctrl read_reg_ctrl_0(instruction_id, rA_t, rA, rB);
     // Registers registers(rA, rB, rW, WE, w, clk, A, B);
-    wire[31:0] A_ori;
-    wire[31:0] B_ori;
-    Registers registers(rA, rB, rw_wb, WE_wb, w_wb, clk, A_ori, B_ori);
+    wire[31:0] A_id;
+    wire[31:0] B_id;
+    Registers registers(rA, rB, rw_wb, WE_wb, w_wb, clk, A_id, B_id);
     wire A_ALU;
     wire B_ALU;
 
-   
+    wire A_alu_red;
+    wire B_alu_red;
+    wire A_mem_red;
+    wire B_mem_red;
     redirection redirection_0(rA, rB, rw_exe, WE_exe_alu, WE_exe_mem, rw_mem, WE_mem,
-    A_ALU, B_ALU, A_mem, B_mem, bubble); // 通道名
-    assign bubble = !bubble;
+    A_alu_red, B_alu_red, A_mem_red, B_mem_red, bubble); // 通道名
 
     wire [3:0]redirection_ctrl_id;
-    assign redirection_ctrl_id = {{B_mem},{B_ALU}, {A_mem}, {A_ALU}};
+    assign redirection_ctrl_id = {{B_mem_red},{B_alu_red}, {A_mem_red}, {A_alu_red}};
 ////////////////////////////////////////////////////////////////////////////////
 
 
 
 /////////////////////////////////exe Area///////////////////////////////////////
-    wire [31:0] A_exe;
-    wire [31:0] B_exe;
+    wire [31:0] A_exe_ori;
+    wire [31:0] B_exe_ori;
     wire [31:0] instruction_exe;
-    wire [31:0] pc_4_exe;
+    wire [11:0] pc_4_exe;
     wire [3:0] redirection_ctrl_exe;
     wire clear_id_exe = bubble | ctrl_clash | rst;
-    ID_EXE id_ex(pc_4_id, instruction_id, A_ori, B_ori, redirection_ctrl_id, go, clear_id_exe, clk,
-    pc_4_exe, instruction_exe, A_exe, B_exe, redirection_ctrl_exe);
+    ID_EXE id_ex(pc_4_id, instruction_id, A_id, B_id, redirection_ctrl_id, go, clear_id_exe, clk,
+    pc_4_exe, instruction_exe, A_exe_ori, B_exe_ori, redirection_ctrl_exe);
     // go clear_one clear_two 
 
     // should we change the instruction in the verilog
@@ -139,18 +141,17 @@ module data_route(
     assign ctrl_msg = {{RAM_LOAD_exe}, {rW_t_exe}, {WE_exe}, {syscall_t_exe}, {4'b0000}, {RAM_STO_exe}, {half_word_exe}, {2'b00}};
 
     wire [31:0] Y;
-    Y_ctrl y_ctrl(instruction_exe, B, Y_t, Y);
+    Y_ctrl y_ctrl(instruction_exe, B_exe, Y_t, Y);
     
-    wire [31:0] A;
-    redirection_handler r_h_0( A_ori, B_ori, alu_out, w_wb, redirection_ctrl_exe, 
-    A, B);
+    redirection_handler r_h_0(A_exe_ori, B_exe_ori, alu_out, w_wb, redirection_ctrl_exe, 
+    A_exe, B_exe);
     
     wire [31:0] alu_exe;
     wire [31:0] useless_0;
     wire useless_1;
     wire useless_2;
     wire useless_3;
-    ALU alu_0(A, Y, alu_s, alu_exe ,useless_0, useless_1,useless_2, useless_3);
+    ALU alu_0(A_exe, Y, alu_s, alu_exe ,useless_0, useless_1,useless_2, useless_3);
 
    
     wire write_alu;
@@ -164,13 +165,13 @@ module data_route(
     wire [31:0] pc_4_exe_32;
     wire [31:0] merge_alu;
     assign pc_4_exe_32 = {{20{1'b0}}, pc_4_exe};
-    MUX_4 #32 mux_4_1(w_exe, alu_exe, pc_4_exe_32, 32'h0000_0000, alu_exe, merge_alu, 32'h0000_0000);
+    MUX_4 #32 mux_4_1(w_exe, alu_exe, pc_4_exe_32, 32'h0000_0000, alu_exe, merge_alu, 1'b0);
 
    
 
 
     wire condi_suc;
-    condi_jump c_j_0(A, B, blez, beq, bne, condi_suc);
+    condi_jump c_j_0(A_exe, B_exe, blez, beq, bne, condi_suc);
 
     wire strong_halt;
     assign strong_halt = stop_g & halt;
@@ -180,11 +181,11 @@ module data_route(
     wire [31:0]condi_suc_num;
     wire [31:0]SyscallOut;
    
-    statistic statistic_0(A, B, clk, rst, syscall_t_exe, condi_suc, unbranch, branch, strong_halt,
+    statistic statistic_0(A_exe, B_exe, clk, rst, syscall_t_exe, condi_suc, unbranch, branch, strong_halt,
     total_cycles, uncondi_num, condi_num, condi_suc_num, SyscallOut,
     halt);
 
-    npc_generator np_0(instruction_exe, A, pc_4_exe, condi_suc, PC_MUX_2, PC_MUX_3,
+    npc_generator np_0(instruction_exe, A_exe, pc_4_exe, condi_suc, PC_MUX_2, PC_MUX_3,
     npc);
     assign n_ctrl_clash = (npc == pc_4_exe);
     assign ctrl_clash = !n_ctrl_clash;
@@ -194,7 +195,7 @@ module data_route(
 ///////////////////////////////MEM Area/////////////////////////////////////////
     wire [31:0] instruction_mem;
     wire [14:0] ctrl_msg_mem;
-    EXE_MEM exe_mem_0(instruction_exe, ctrl_msg, merge_alu, A, B, 
+    EXE_MEM exe_mem_0(instruction_exe, ctrl_msg, merge_alu, A_exe, B_exe, 
         go, rst, clk, 
         instruction_mem, ctrl_msg_mem, alu_out, A_mem, B_mem);
 
@@ -221,13 +222,13 @@ module data_route(
     assign byte_choose = alu_out[0];
     assign ram_addr = alu_out[6:1];
     wire [31:0] ram_word;
-    DM dm_0(ram_addr, ram_addr_dispaly, alu_out, 2'b11, rst, clk, ram_word, ram_display);
+    DM dm_0(ram_addr, ram_addr_dispaly, alu_out, RAM_STO, 2'b11, rst, clk, ram_word, ram_display);
 
     wire [31:0] ram_word_se;
     word_ctrl w_c_0(byte_choose, half_word, ram_word, ram_word_se);
 
     wire [31:0] mem;
-    MUX_4 #32 mux_1_1(w_mem, alu_out, alu_out, 32'h0000_0000, ram_word_se, mem, 32'h0000_0000);
+    MUX_4 #32 mux_1_1(w_mem, alu_out, alu_out, 32'h0000_0000, ram_word_se, mem, 1'b0);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -244,8 +245,10 @@ module data_route(
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////Show Area///////////////////////////////////////
+    wire [31:0] show_pc;
+    assign show_pc = {{20'h00000}, {pc}};
     Data_Choose show_data( display, ram_display, total_cycles, condi_num, uncondi_num,
-    condi_suc_num, SyscallOut, pc, clk1, 
+    condi_suc_num, SyscallOut, show_pc, clk1, 
     AN, SEG);
 ////////////////////////////////////////////////////////////////////////////////
 endmodule

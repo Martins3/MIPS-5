@@ -13,8 +13,8 @@ module read_reg_ctrl(
     assign rs = instruction[20:16];
     assign rt = instruction[25:21];
 
-    MUX_4 #5 mux_left(rA_t, rt, 5'b00010,5'b00000, rs, rA, 0);
-    MUX_4 #5 mux_right(rA_t, rs, 5'b00100, 5'b00000, rt, rB ,0);
+    MUX_4 #5 mux_left(rA_t, rt, 5'b00010,5'b00000, rs, rA, 1'b0);
+    MUX_4 #5 mux_right(rA_t, rs, 5'b00100, 5'b00000, rt, rB ,1'b0);
     
 endmodule
 

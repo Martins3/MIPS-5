@@ -17,8 +17,8 @@ module IF_ID(
     wire [11:0] pc_4_out_t;
     wire [31:0] instruction_out_t;
     
-    MUX_2 #12 mux_1(clear,pc_4, 0, pc_4_out_t, 0);
-    MUX_2 #32 mux_2(clear, instruction, 0, instruction_out_t, 0);
+    MUX_2 #12 mux_1(clear, pc_4, 12'h000, pc_4_out_t, 1'b0);
+    MUX_2 #32 mux_2(clear, instruction, 32'h0000_0000, instruction_out_t, 1'b0);
 
    
 

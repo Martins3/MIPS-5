@@ -35,11 +35,11 @@ module npc_generator(
 
     // some mux operation
 
-    MUX_2 #32 condi_mux(condi_suc, pc_32, j_im16, mux_out1, 0);
+    MUX_2 #32 condi_mux(condi_suc, pc_32, j_im16, mux_out1, 1'b0);
 
-    MUX_2 #32 mux_2(PC_MUX_2, j_im26, mux_out1, mux_out2, 0);
+    MUX_2 #32 mux_2(PC_MUX_2, j_im26, mux_out1, mux_out2, 1'b0);
 
-    MUX_2 #32 mux_3(PC_MUX_3, mux_out2, A, npc_32, 0);
+    MUX_2 #32 mux_3(PC_MUX_3, mux_out2, A, npc_32, 1'b0);
 
     assign npc = npc_32[11:0];
 

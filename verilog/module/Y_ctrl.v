@@ -11,7 +11,7 @@ module Y_ctrl(
     wire [15:0] im;
     wire [31:0] signed_im;
     wire [31:0] unsinged_im;
-    wire [4:0] shamt;
+    wire [31:0] shamt;
     wire [31:0] mux_1_out;
     
     assign op = instruction[31: 27];
@@ -23,8 +23,8 @@ module Y_ctrl(
     assign unsinged_im = {16'b0, im};
 
     
-    MUX_2 #32 mux_1(ori_andi, signed_im, unsinged_im, mux_1_out, 0);
-    MUX_4 #32 mux_2(Y_t, B, shamt, 0, mux_1_out, Y, 0);
+    MUX_2 #32 mux_1(ori_andi, signed_im, unsinged_im, mux_1_out, 1'b0);
+    MUX_4 #32 mux_2(Y_t, B, shamt, 32'h0000_0000, mux_1_out, Y, 1'b0);
     
 endmodule
 

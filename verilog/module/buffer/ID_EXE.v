@@ -23,11 +23,11 @@ module ID_EXE(
     wire [31:0] B_out_t;
     wire [3:0] redirect_ctrl_out_t;
     
-    MUX_2 #12 mux_1(clear, pc_4, 0, pc_4_out_t, 0);
-    MUX_2 #32 mux_2(clear, instruction, 0, instruction_out_t,0);
-    MUX_2 #32 mux_3(clear, A, 0, A_out_t, 0);
-    MUX_2 #32 mux_4(clear, B, 0, B_out_t, 0);
-    MUX_2 #4 mux_5(clear, redirect_ctrl, 0, redirect_ctrl_out_t, 0);
+    MUX_2 #12 mux_1(clear, pc_4, 12'h000, pc_4_out_t, 1'b0);
+    MUX_2 #32 mux_2(clear, instruction, 32'h0000_0000, instruction_out_t, 1'b0);
+    MUX_2 #32 mux_3(clear, A, 32'h0000_0000, A_out_t, 1'b0);
+    MUX_2 #32 mux_4(clear, B, 32'h0000_0000, B_out_t, 1'b0);
+    MUX_2 #4 mux_5(clear, redirect_ctrl, 4'h0000, redirect_ctrl_out_t, 1'b0);
 
 
     always @(posedge clk) begin

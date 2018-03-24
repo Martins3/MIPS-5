@@ -15,8 +15,8 @@ module word_ctrl(
     assign low = D[15:0];
     assign half_ext = {{16{half[15]}}, half};
     
-    MUX_2 #32 mux_1(wc, low, high, half, 0);
-    MUX_2 #32 mux_2(half_word_t, D, half_ext, D_out ,0);
+    MUX_2 #1 mux_1(wc, low, high, half, 1'b0);
+    MUX_2 #32 mux_2(half_word_t, D, half_ext, D_out ,1'b0);
     
 endmodule
 
