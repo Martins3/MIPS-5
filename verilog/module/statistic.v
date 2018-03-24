@@ -15,14 +15,13 @@ module statistic(
     output reg [31:0] condi_num,
     output reg [31:0] condi_suc_num,
     output reg [31:0] SyscallOut,
-    output reg halt
+    output halt
     );
 
     // there are slightly different form the logisim
-    wire is_halt;
     wire is_show;
 
-    assign is_halt = (A == 10) && syscall_t;
+    assign halt = (A == 10) && syscall_t;
     assign is_show = (A == 34) && syscall_t;
 
 
@@ -50,12 +49,7 @@ module statistic(
             condi_suc_num = condi_suc_num + 1;
         end
 
-        if(is_halt) begin
-            halt = 1;
-        end else begin
-            halt = 0;
-        end
-
+        
         if(is_show) begin
             SyscallOut = B;
         end

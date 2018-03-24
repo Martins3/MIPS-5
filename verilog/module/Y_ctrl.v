@@ -3,7 +3,7 @@ module Y_ctrl(
     input [31:0] B,
     input [1:0] Y_t,
 
-    output reg [31:0] Y
+    output [31:0] Y
     );
 
     wire ori_andi;

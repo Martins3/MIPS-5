@@ -6,8 +6,8 @@ module redirection_handler(
     input [3:0] redirection_ctrl,
     
 
-    output reg [31:0] A,
-    output reg [31:0] B
+    output [31:0] A,
+    output [31:0] B
     );
 
     wire [31:0] A_mem;

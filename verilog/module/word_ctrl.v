@@ -3,7 +3,7 @@ module word_ctrl(
     input half_word_t,
     input [31:0] D,
 
-    output reg [31:0] D_out
+    output [31:0] D_out
     );
 
     wire [15:0] low;
