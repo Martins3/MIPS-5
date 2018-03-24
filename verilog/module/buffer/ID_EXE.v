@@ -6,8 +6,7 @@ module ID_EXE(
     input [3:0] redirect_ctrl,
 
     input go,
-    input clear_one, 
-    input clear_two,
+    input clear, 
     input clk,
 
     output reg [11:0] pc_4_out,
@@ -17,8 +16,6 @@ module ID_EXE(
     output reg [3:0] redirect_ctrl_out
     );
 
-    wire clear;
-    assign clear = clear_one | clear_two;
     
     wire [11:0] pc_4_out_t;
     wire [31:0] instruction_out_t;

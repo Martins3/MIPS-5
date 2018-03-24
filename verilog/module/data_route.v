@@ -53,7 +53,6 @@ module data_route(
     wire [11:0]pc;
     
     wire [11:0] pc_in;
-    
     assign stop = 1'b1;
     wire pc_enable = halt && stop && (!bubble);
     program_counter p_c_0(pc_in, clk, rst, pc_enable, pc);
@@ -67,7 +66,7 @@ module data_route(
     // ctrl
    
     wire n_ctrl_clash;
-    MUX_2#12 mux_2_123(n_ctrl_clash, npc, pc_4, pc_in, 0);
+    MUX_2 #12 mux_2_123(n_ctrl_clash, npc, pc_4, pc_in, 0);
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -75,8 +74,10 @@ module data_route(
 /////////////////////////////////id Area////////////////////////////////////////
     wire [11:0] pc_4_id;
     wire [31:0] instruction_id;
-    wire n_bubble; 
-    IF_ID if_id(pc_4, instruction, ctrl_clash, go, n_bubble, clk, pc_4_id, instruction_id);
+    wire n_bubble;
+    wire clear_if_id;
+    assign clear_if_id = n_bubble | rst;
+    IF_ID if_id(pc_4, instruction, ctrl_clash, go, clear_if_id, clk, pc_4_id, instruction_id);
 
     wire [1:0]rA_t;
     RA_ctrl r_c_0_0(instruction_id, rA_t);
@@ -108,7 +109,8 @@ module data_route(
     wire [31:0] instruction_exe;
     wire [31:0] pc_4_exe;
     wire [3:0] redirection_ctrl_exe;
-    ID_EXE id_ex(pc_4_id, instruction_id, A_ori, B_ori, redirection_ctrl_id, go, bubble, ctrl_clash, clk,
+    wire clear_id_exe = bubble | ctrl_clash | rst;
+    ID_EXE id_ex(pc_4_id, instruction_id, A_ori, B_ori, redirection_ctrl_id, go, clear_id_exe, clk,
     pc_4_exe, instruction_exe, A_exe, B_exe, redirection_ctrl_exe);
     // go clear_one clear_two 
 
@@ -193,7 +195,7 @@ module data_route(
     wire [31:0] instruction_mem;
     wire [14:0] ctrl_msg_mem;
     EXE_MEM exe_mem_0(instruction_exe, ctrl_msg, merge_alu, A, B, 
-        go, 1'b1, clk, 
+        go, rst, clk, 
         instruction_mem, ctrl_msg_mem, alu_out, A_mem, B_mem);
 
     wire half_word;
@@ -232,7 +234,7 @@ module data_route(
 ///////////////////////////////WB Area//////////////////////////////////////////
     wire syscall_wb;
     MEM_WB mem_out_0(syscall_mem, WE_mem, rw_mem, A_mem, w_mem, 
-    go, 1'b1, clk, 
+    go, rst, clk, 
     syscall_wb, WE_wb, rw_wb, A_wb, w_wb);
 
     
