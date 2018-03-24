@@ -17,6 +17,14 @@ module ID_EXE(
     output reg [31:0] B_out,
     output reg [3:0] redirect_ctrl_out
     );
+    
+    initial begin
+        pc_4_out = 0;
+        instruction_out = 0;
+        A_out = 0;
+        B_out = 0;
+        redirect_ctrl_out = 0;
+    end
 
     
     wire [11:0] pc_4_out_t;

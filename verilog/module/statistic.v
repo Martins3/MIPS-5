@@ -16,14 +16,12 @@ module statistic(
     output reg [31:0] uncondi_num,
     output reg [31:0] condi_num,
     output reg [31:0] condi_suc_num,
-    output reg [31:0] SyscallOut,
-    output halt
+    output reg [31:0] SyscallOut
     );
 
     // there are slightly different form the logisim
     wire is_show;
 
-    assign halt = (A == 10) && syscall_t;
     assign is_show = (A == 34) && syscall_t;
 
 

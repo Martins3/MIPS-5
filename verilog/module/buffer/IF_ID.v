@@ -15,6 +15,10 @@ module IF_ID(
 
     wire go;
     assign go = go_one | go_two;
+    initial begin
+        pc_4_out = 0;
+        instruction_out = 0;
+    end
     
     wire [11:0] pc_4_out_t;
     wire [31:0] instruction_out_t;

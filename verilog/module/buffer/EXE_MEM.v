@@ -17,6 +17,14 @@ module EXE_MEM(
     output reg [31:0] B_out
     );
 
+    initial begin
+        instruction_out = 0;
+        ctrl_msg_out = 0;
+        alu_out = 0;
+        A_out = 0;
+        B_out = 0;
+    end
+
     wire [31:0] instruction_out_t;
     wire [14:0] ctrl_msg_out_t;
     wire [31:0] alu_out_t;

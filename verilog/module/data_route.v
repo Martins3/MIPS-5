@@ -43,7 +43,6 @@ module data_route(
     wire [31:0] B_mem;
     
     wire [31:0] word_wb;
-    wire [31:0] word_mem;
 
     // when stop or halt, freeze all the buffer
     wire go;
@@ -183,10 +182,10 @@ module data_route(
     wire [31:0]condi_num;
     wire [31:0]condi_suc_num;
     wire [31:0]SyscallOut;
+    
    
     statistic statistic_0(A_exe, B_exe, clk, rst, syscall_t_exe, condi_suc, unbranch, branch, strong_halt,
-    total_cycles, uncondi_num, condi_num, condi_suc_num, SyscallOut,
-    halt);
+    total_cycles, uncondi_num, condi_num, condi_suc_num, SyscallOut);
 
     npc_generator np_0(instruction_exe, A_exe, pc_4_exe, condi_suc, PC_MUX_2, PC_MUX_3,
     npc);
@@ -230,14 +229,14 @@ module data_route(
     wire [31:0] ram_word_se;
     word_ctrl w_c_0(byte_choose, half_word, ram_word, ram_word_se);
 
-    wire [31:0] mem;
-    MUX_4 #32 mux_1_1(wc_mem, alu_out, alu_out, 32'h0000_0000, ram_word_se, mem, 1'b0);
+    wire [31:0] word_mem;
+    MUX_4 #32 mux_1_1(wc_mem, alu_out, alu_out, 32'h0000_0000, ram_word_se, word_mem, 1'b0);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////WB Area//////////////////////////////////////////
     wire syscall_wb;
-    MEM_WB mem_out_0(syscall_mem, WE_mem, rw_mem, A_mem, word_mem, 
+    MEM_WB mem_wb(syscall_mem, WE_mem, rw_mem, A_mem, word_mem, 
     go, rst, clk, 
     syscall_wb, WE_wb, rw_wb, A_wb, word_wb);
 

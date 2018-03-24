@@ -18,6 +18,14 @@ module MEM_WB(
     output reg [31:0] w_out
     );
 
+    initial begin
+        syscall_out = 0;
+        WE_out = 0;
+        RW_out = 0;
+        A_out = 0;
+        w_out = 0;
+    end
+
     wire syscall_out_t;
     wire WE_out_t;
     wire [4:0] RW_out_t;
