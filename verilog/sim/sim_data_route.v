@@ -20,7 +20,7 @@ module sim_data_route();
         # 5 rst = 0;
     end
      
-    always #1 clk1 <= clk1 + 1;
+    always #1 clk1 <= ~clk1;
 
     data_route data_route_0(clk1, ram_addr_dispaly, rst, frequency, display, AN, SEG);
 

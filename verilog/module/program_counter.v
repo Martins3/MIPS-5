@@ -1,3 +1,5 @@
+
+`timescale 1ns / 1ps
 module program_counter(
     input [11:0] pc_in,
     input clk,

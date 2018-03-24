@@ -1,3 +1,5 @@
+
+`timescale 1ns / 1ps
 module word_ctrl(
     input wc,
     input half_word_t,

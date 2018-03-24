@@ -1,3 +1,5 @@
+
+`timescale 1ns / 1ps
 module redirection_handler(
     input [31:0] A_ori,
     input [31:0] B_ori,

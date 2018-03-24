@@ -1,6 +1,4 @@
-// clear should be assigned as 0
-// for nobody should clear this buffer
-
+`timescale 1ns / 1ps
 module EXE_MEM(
     input [31:0] instruction,
     input [14:0] ctrl_msg,

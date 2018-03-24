@@ -1,3 +1,5 @@
+
+`timescale 1ns / 1ps
 module read_reg_ctrl(
     input [31:0]instruction,
     input [1:0] rA_t,

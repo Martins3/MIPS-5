@@ -1,4 +1,5 @@
 // maybe there are bugs about instruction_32_left2_temp
+`timescale 1ns / 1ps
 module npc_generator(
     input [31:0] instruction,
     input [31:0] A,

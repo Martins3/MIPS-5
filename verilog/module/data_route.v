@@ -1,3 +1,5 @@
+
+`timescale 1ns / 1ps
 module data_route(
     input clk1, 
     input [5:0]ram_addr_dispaly,

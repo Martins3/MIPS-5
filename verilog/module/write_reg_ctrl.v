@@ -1,3 +1,5 @@
+
+`timescale 1ns / 1ps
 module write_reg_ctrl(
     input [1:0] rW_t,
     input [31:0] instruction,

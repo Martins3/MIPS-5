@@ -1,4 +1,5 @@
 // samely, should be zero
+`timescale 1ns / 1ps
 module MEM_WB(
     input syscall,
     input WE,

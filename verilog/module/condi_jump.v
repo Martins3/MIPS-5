@@ -1,3 +1,5 @@
+
+`timescale 1ns / 1ps
 module condi_jump(
     input [31:0] A,
     input [31:0] B,

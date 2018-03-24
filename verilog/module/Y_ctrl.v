@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 module Y_ctrl(
     input [31:0]instruction,
     input [31:0] B,

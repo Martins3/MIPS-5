@@ -1,3 +1,5 @@
+
+`timescale 1ns / 1ps
 module RA_ctrl(
     input [31:0]instruction,
 
