@@ -22,7 +22,6 @@ module data_route(
 /////////////////////Declaration////////////////////////////////////////////////
     wire [11:0] npc;
     wire ctrl_clash;
-    wire [31:0] w_wb;
     wire [31:0] A_wb;
     wire [4:0] rw_wb;
     wire WE_wb;
@@ -41,12 +40,14 @@ module data_route(
     wire [31:0] A_mem;
     wire [31:0] B_mem;
     
-     // when stop or halt, freeze all the buffer
-     wire go;
-     wire stop;
-     wire halt;
-     assign go = stop && halt;
+    wire [31:0] word_wb;
+    wire [31:0] word_mem;
 
+    // when stop or halt, freeze all the buffer
+    wire go;
+    wire stop;
+    wire halt;
+    assign go = stop && halt;
 ////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////IF Area////////////////////////////////////////
@@ -88,7 +89,7 @@ module data_route(
     // Registers registers(rA, rB, rW, WE, w, clk, A, B);
     wire[31:0] A_id;
     wire[31:0] B_id;
-    Registers registers(rA, rB, rw_wb, WE_wb, w_wb, clk, A_id, B_id);
+    Registers registers(rA, rB, rw_wb, WE_wb, word_wb, clk, A_id, B_id);
     wire A_ALU;
     wire B_ALU;
 
@@ -119,7 +120,7 @@ module data_route(
     // should we change the instruction in the verilog
     wire [1:0]rW_t_exe;
     wire WE_exe;
-    wire [1:0]w_exe; // choose which word to wirte
+    wire [1:0]wc_exe; // choose which word to wirte
     wire [1:0]Y_t;
     wire [3:0]alu_s;
     wire PC_MUX_2;
@@ -134,7 +135,7 @@ module data_route(
     wire unbranch;
     wire syscall_t_exe;
     controller controller_0(instruction_exe, 
-    rW_t_exe, WE_exe, w_exe, Y_t, alu_s, PC_MUX_2, PC_MUX_3, blez, beq, bne, RAM_STO_exe, RAM_LOAD_exe, half_word_exe, branch, unbranch, syscall_t_exe);
+    rW_t_exe, WE_exe, wc_exe, Y_t, alu_s, PC_MUX_2, PC_MUX_3, blez, beq, bne, RAM_STO_exe, RAM_LOAD_exe, half_word_exe, branch, unbranch, syscall_t_exe);
 
 
     wire [14:0] ctrl_msg;
@@ -143,7 +144,7 @@ module data_route(
     wire [31:0] Y;
     Y_ctrl y_ctrl(instruction_exe, B_exe, Y_t, Y);
     
-    redirection_handler r_h_0(A_exe_ori, B_exe_ori, alu_out, w_wb, redirection_ctrl_exe, 
+    redirection_handler r_h_0(A_exe_ori, B_exe_ori, alu_out, word_wb, redirection_ctrl_exe, 
     A_exe, B_exe);
     
     wire [31:0] alu_exe;
@@ -155,7 +156,7 @@ module data_route(
 
    
     wire write_alu;
-    MUX_4#1 mux_4_0(w_exe, 1'b1, 1'b1, 1'b0, 1'b0, write_alu, 1'b0);
+    MUX_4 #1 mux_4_0(wc_exe, 1'b1, 1'b1, 1'b0, 1'b0, write_alu, 1'b0);
     assign WE_exe_alu = (WE_exe & write_alu);
     assign WE_exe_mem = (WE_exe & !write_alu);
 
@@ -165,7 +166,7 @@ module data_route(
     wire [31:0] pc_4_exe_32;
     wire [31:0] merge_alu;
     assign pc_4_exe_32 = {{20{1'b0}}, pc_4_exe};
-    MUX_4 #32 mux_4_1(w_exe, alu_exe, pc_4_exe_32, 32'h0000_0000, alu_exe, merge_alu, 1'b0);
+    MUX_4 #32 mux_4_1(wc_exe, alu_exe, pc_4_exe_32, 32'h0000_0000, alu_exe, merge_alu, 1'b0);
 
    
 
@@ -202,14 +203,14 @@ module data_route(
     wire half_word;
     wire RAM_STO;
     wire syscall_mem;
-    wire[1:0] w_mem;
+    wire[1:0] wc_mem;
     wire[1:0] rW_t;
     wire RAM_LOAD;
     assign half_word = ctrl_msg_mem[2];
     assign RAM_STO = ctrl_msg[3];
     assign syscall_mem = ctrl_msg_mem[8];
     assign WE_mem = ctrl_msg_mem[9];
-    assign w_mem = ctrl_msg_mem[11:10];
+    assign wc_mem = ctrl_msg_mem[11:10];
     assign rW_t = ctrl_msg_mem[13:12];
     assign RAM_LOAD = ctrl_msg_mem[14];
 
@@ -228,15 +229,15 @@ module data_route(
     word_ctrl w_c_0(byte_choose, half_word, ram_word, ram_word_se);
 
     wire [31:0] mem;
-    MUX_4 #32 mux_1_1(w_mem, alu_out, alu_out, 32'h0000_0000, ram_word_se, mem, 1'b0);
+    MUX_4 #32 mux_1_1(wc_mem, alu_out, alu_out, 32'h0000_0000, ram_word_se, mem, 1'b0);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////WB Area//////////////////////////////////////////
     wire syscall_wb;
-    MEM_WB mem_out_0(syscall_mem, WE_mem, rw_mem, A_mem, w_mem, 
+    MEM_WB mem_out_0(syscall_mem, WE_mem, rw_mem, A_mem, word_mem, 
     go, rst, clk, 
-    syscall_wb, WE_wb, rw_wb, A_wb, w_wb);
+    syscall_wb, WE_wb, rw_wb, A_wb, word_wb);
 
     
     

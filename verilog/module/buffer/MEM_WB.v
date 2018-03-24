@@ -19,13 +19,13 @@ module MEM_WB(
 
     wire syscall_out_t;
     wire WE_out_t;
-    wire [3:0] RW_out_t;
+    wire [4:0] RW_out_t;
     wire [31:0] A_out_t;
     wire [31:0] w_out_t;
 
     MUX_2 #1 mux_0(clear, syscall, 1'b0, syscall_out_t,1'b0);
     MUX_2 #1 mux_1(clear, WE, 1'b0, WE_out_t, 1'b0);
-    MUX_2 #4 mux_2(clear, RW, 4'h0, RW_out_t, 1'b0);
+    MUX_2 #5 mux_2(clear, RW, 5'b00000, RW_out_t, 1'b0);
     MUX_2 #32 mux_3(clear, A, 32'h0000_0000, A_out_t, 1'b0);
     MUX_2 #32 mux_4(clear, w, 32'h0000_0000, w_out_t, 1'b0);
 
