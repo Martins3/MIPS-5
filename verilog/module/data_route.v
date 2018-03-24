@@ -138,7 +138,7 @@ module data_route(
 
 
     wire [14:0] ctrl_msg;
-    assign ctrl_msg = {{RAM_LOAD_exe}, {rW_t_exe}, {WE_exe}, {syscall_t_exe}, {4'b0000}, {RAM_STO_exe}, {half_word_exe}, {2'b00}};
+    assign ctrl_msg = {{RAM_LOAD_exe}, {rW_t_exe}, {wc_exe}, {WE_exe}, {syscall_t_exe}, {4'b0000}, {RAM_STO_exe}, {half_word_exe}, {2'b00}};
 
     wire [31:0] Y;
     Y_ctrl y_ctrl(instruction_exe, B_exe, Y_t, Y);
@@ -185,8 +185,7 @@ module data_route(
     statistic statistic_0(A_exe, B_exe, clk, rst, syscall_t_exe, condi_suc, unbranch, branch, strong_halt,
     total_cycles, uncondi_num, condi_num, condi_suc_num, SyscallOut);
 
-    npc_generator np_0(instruction_exe, A_exe, pc_4_exe, condi_suc, PC_MUX_2, PC_MUX_3,
-    npc);
+    npc_generator np_0(instruction_exe, A_exe, pc_4_exe, condi_suc, PC_MUX_2, PC_MUX_3, npc);
     assign n_ctrl_clash = (npc == pc_4_exe);
     assign ctrl_clash = !n_ctrl_clash;
 ////////////////////////////////////////////////////////////////////////////////

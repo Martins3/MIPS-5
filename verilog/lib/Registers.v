@@ -46,8 +46,8 @@ module Registers(
 		for (i = 0; i < 32; i=i+1) data[i] = 'h00000000;
 	end
 
-	always @(posedge clk) begin
-		if (WE) begin
+	always @(negedge clk) begin
+		if (WE && rW != 5'b00000) begin
 			data[rW] = w;
 		end
 	end

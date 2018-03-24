@@ -18,6 +18,6 @@ module condi_jump(
     assign a_less_equal_0 = (A <= 0);
     assign a_not_equal_b = ~a_equal_b;
 
-    assign condi_suc = (a_equal_b & beq) || (a_not_equal_b & bne) || (a_less_equal_0 & blez);
+    assign condi_suc = (a_equal_b && beq) || (a_not_equal_b && bne) || (a_less_equal_0 && blez);
 endmodule
 

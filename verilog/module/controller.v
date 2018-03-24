@@ -34,7 +34,7 @@ module controller(
         assign rW = is_R ? 2'b00 : 2'bz,
                rW = (!is_R && op == 6'b000011) ? 2'b01 : 2'bz,
                rW = (!is_R && ( (op == 6'b001000 || op == 6'b001001 || op == 6'b001100 || op == 6'b001101 || op == 6'b001010 || op == 6'b100001 || op == 6'b100011))) ? 2'b11:2'bz; 
-
+                
 
 
         assign WE = (is_R && (funct != 6'b001000 && funct != 6'b001100)) || 
@@ -43,12 +43,14 @@ module controller(
 
         assign  w = is_R ? 2'b00 : 2'bz,
                 w = (!is_R && (op == 6'b000011)) ? 2'b01 : 2'bz ,
-                w = (!is_R && (op == 6'b100001 || op == 6'b100011)) ? 2'b11:2'bz;
+                w = (!is_R && (op == 6'b100001 || op == 6'b100011)) ? 2'b11:2'bz,
+                w = (!is_R && ( op == 6'b001000 || op == 6'b001001 || op == 6'b001100 || op == 6'b001101 || op == 6'b001010 )) ?2'b00:2'bz;
+
         
-        assign Y =  (is_R && ( funct == 6'b100000 || funct == 6'b100001 || funct == 6'b100100 || funct == 6'b100010 || funct == 6'b100101 || funct == 6'b100111 || funct == 6'b101010 || funct == 6'b101011 || funct == 6'b000110 || funct == 6'b000111)) ? 2'b00: 2'bz,
+        assign Y = (is_R && ( funct == 6'b100000 || funct == 6'b100001 || funct == 6'b100100 || funct == 6'b100010 || funct == 6'b100101 || funct == 6'b100111 || funct == 6'b101010 || funct == 6'b101011 || funct == 6'b000110 || funct == 6'b000111)) ? 2'b00: 2'bz,
                Y = (is_R && (funct == 6'b000000 || funct == 6'b000011 || funct == 6'b000010)) ? 2'b01 : 2'bz,
                Y = (!is_R && (op == 6'b000110 || op == 6'b000100 || op == 6'b000101 )) ? 2'b00 : 2'bz,
-               Y = (!is_R && ( op == 001000 || op == 001001 || op == 001100 || op == 001101 || op == 001010 || op == 100001 || op == 100011 || op == 101011)) ? 2'b11:2'bz;
+               Y = (!is_R && ( op == 6'b001000 || op == 6'b001001 || op == 6'b001100 || op == 6'b001101 || op == 6'b001010 || op == 6'b100001 || op == 6'b100011 || op == 6'b101011)) ? 2'b11:2'bz;
 
         
         
@@ -85,7 +87,7 @@ module controller(
 
         assign PC_MUX_2 = !(!is_R && (op == 6'b000010 || op == 6'b000011));
 
-        assign PC_MUX_3 = (!is_R && (op == 6'b001000));
+        assign PC_MUX_3 = (is_R && (funct == 6'b001000));
 
         assign blez = (!is_R && op == 6'b000110);
 

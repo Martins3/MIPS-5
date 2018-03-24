@@ -14,10 +14,10 @@ module sim_data_route();
     begin
         clk1 = 0;
         ram_addr_dispaly = 5'b000000;
-        rst = 1;
+        rst = 0;
         frequency = 1;
         display = 3'b000;
-        # 5 rst = 0;
+//        # 5 rst = 0;
     end
      
     always #1 clk1 <= ~clk1;
