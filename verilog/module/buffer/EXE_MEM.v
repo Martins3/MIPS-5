@@ -33,11 +33,11 @@ module EXE_MEM(
 
     always @(posedge clk) begin
         if(go) begin
-            instruction_out_t = instruction_out;
-            ctrl_msg_out_t = ctrl_msg_out;
-            alu_out_t = alu_out;
-            A_out_t = A_out;
-            B_out_t = B_out;
+            instruction_out = instruction_out_t;
+            ctrl_msg_out = ctrl_msg_out_t;
+            alu_out = alu_out_t;
+            A_out = A_out_t;
+            B_out = B_out_t;
         end
     end
 endmodule

@@ -13,12 +13,14 @@ module IF_ID(
 
     wire go;
     assign go = go_one | go_two;
-
-    MUX_2 #12 mux_1(clear,pc_4, 0, pc_4_out, 0);
-    MUX_2 #32 mux_2(clear, instruction, 0, instruction_out, 0);
-
+    
     wire [11:0] pc_4_out_t;
     wire [31:0] instruction_out_t;
+    
+    MUX_2 #12 mux_1(clear,pc_4, 0, pc_4_out_t, 0);
+    MUX_2 #32 mux_2(clear, instruction, 0, instruction_out_t, 0);
+
+   
 
     always @(posedge clk) begin
         if(go) begin

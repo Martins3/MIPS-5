@@ -13,8 +13,8 @@ module IM(
 	initial begin
 		for (i=0;i<1024;i=i+1) data[i] = 'h00000000;
 	end
-
-	initial $readmemh("F:/junior/CPU/Benchmarks/benchmark_ccmb.hex", data);
+	
+	initial $readmemh("/home/martin/X-Brain/sys_design/documents/cc/verilog/test/b.hex", data);
 
 	assign D_out = data[A];
 

@@ -20,17 +20,18 @@ module ID_EXE(
     wire clear;
     assign clear = clear_one | clear_two;
     
-    MUX_2 #12 mux_1(clear, pc_4, 0, pc_4_out, 0);
-    MUX_2 #32 mux_2(clear, instruction, 0, instruction_out,0);
-    MUX_2 #32 mux_3(clear, A, 0, A_out, 0);
-    MUX_2 #32 mux_4(clear, B, 0, B_out, 0);
-    MUX_2 #4 mux_5(clear, redirect_ctrl, 0, redirect_ctrl_out,0);
-
     wire [11:0] pc_4_out_t;
     wire [31:0] instruction_out_t;
     wire [31:0] A_out_t;
     wire [31:0] B_out_t;
     wire [3:0] redirect_ctrl_out_t;
+    
+    MUX_2 #12 mux_1(clear, pc_4, 0, pc_4_out_t, 0);
+    MUX_2 #32 mux_2(clear, instruction, 0, instruction_out_t,0);
+    MUX_2 #32 mux_3(clear, A, 0, A_out_t, 0);
+    MUX_2 #32 mux_4(clear, B, 0, B_out_t, 0);
+    MUX_2 #4 mux_5(clear, redirect_ctrl, 0, redirect_ctrl_out_t, 0);
+
 
     always @(posedge clk) begin
         if(go) begin
