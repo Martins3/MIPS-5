@@ -16,11 +16,11 @@ module DM(
 
 	wire [5:0] rA, rB;
 
-	assign rA = _rA >> 2;
-	assign rB = _rB >> 2;
+	assign rA = _rA >> 1;
+	assign rB = _rB >> 1;
 
 	initial begin
-		for (i=0; i<64; i=i+1) data[i] <= 'h00000000;
+		for (i=0; i<64; i=i+1) data[i] <= 'h00000001;
 		A_out <= 0;
 		B_out <= 0;
 	end
@@ -41,24 +41,8 @@ module DM(
 
 
 	always @(*) begin
-		case (mode)		// read 
-				2'b00:	begin
-					A_out <= data[rA];
-					B_out <= data[rB];
-				end
-				2'b01:	begin
-					A_out <= {'h0000, data[rA][15:0]};
-					B_out <= {'h0000, data[rB][15:0]};
-				end
-				2'b10:	begin
-					A_out <= {'h000000, data[rA][7:0]};
-					B_out <= {'h000000, data[rB][7:0]};
-				end
-				default:	begin
-					A_out <= {'h000000, data[rA][7:0]};
-					B_out <= {'h000000, data[rB][7:0]};
-			end
-		endcase
+		A_out = data[rA];
+		B_out = data[rB];
 	end
 
 endmodule

@@ -18,6 +18,7 @@ module RA_ctrl(
     assign R = (is_R && (funct == 6'b100000|| funct == 6'b100001|| funct == 6'b100100|| funct == 6'b100010|| funct == 6'b100101|| funct == 6'b100111|| funct == 6'b101010|| funct == 6'b101011)) ? 2'b00: 2'bz, 
            R = (is_R && (funct == 6'b000110 || funct == 6'b000111 || funct == 6'b000000 || funct == 6'b000011 || funct == 6'b000010)) ? 2'b11: 2'bz,
            R = (!is_R) ? 2'b00 : 2'bz, 
+           R = (is_R && funct == 6'b001000) ? 2'b00: 2'bz,
            R = (is_R && funct == 6'b001100) ? 2'b01: 2'bz;
 
 endmodule

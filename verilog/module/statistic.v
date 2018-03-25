@@ -22,7 +22,7 @@ module statistic(
     // there are slightly different form the logisim
     wire is_show;
 
-    assign is_show = (A == 34) && syscall_t;
+    assign is_show = (A != 32'd10) && (A != 32'd50) && syscall_t;
 
     initial begin
         total_cycles = 0;

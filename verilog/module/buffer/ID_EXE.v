@@ -47,7 +47,6 @@ module ID_EXE(
             A_out = A_out_t;
             B_out = B_out_t;
             redirect_ctrl_out = redirect_ctrl_out_t;
-
         end
     end
 endmodule

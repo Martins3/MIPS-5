@@ -20,19 +20,19 @@ module ALU(X,Y,OP,R,R2,OF,UOF,Equal);
     always @(X or Y or OP) begin
     	case(OP)
     		0 : begin//逻辑左移
-    			R = X << Y;
+    			R = X << Y[4:0];
     			R2 = 0;
     			OF = 0;
     			UOF = 0;
     		end
     		1 : begin//算术右移
-    			R = $signed(X) >>> Y;
+    			R = $signed(X) >>> Y[4:0];
     			R2 = 0;
     			OF = 0;
     			UOF = 0;
     		end
     		2 : begin//逻辑右移
-    			R = X >> Y;
+    			R = X >> Y[4:0];
     			R2 = 0;
     			OF = 0;
     			UOF = 0;

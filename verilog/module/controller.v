@@ -43,7 +43,7 @@ module controller(
 
         assign  w = is_R ? 2'b00 : 2'bz,
                 w = (!is_R && (op == 6'b000011)) ? 2'b01 : 2'bz ,
-                w = (!is_R && (op == 6'b100001 || op == 6'b100011)) ? 2'b11:2'bz,
+                w = (!is_R && (op == 6'b100001 || op == 6'b100011 || op == 6'b101011)) ? 2'b11:2'bz,
                 w = (!is_R && ( op == 6'b001000 || op == 6'b001001 || op == 6'b001100 || op == 6'b001101 || op == 6'b001010 )) ?2'b00:2'bz;
 
         
@@ -71,8 +71,8 @@ module controller(
                 alu_s = (is_R && funct == 6'b000111) ? 4'b0001: 4'bz,
 
                 alu_s = (is_R && funct == 6'b000000) ? 4'b0000: 4'bz,
-                alu_s = (is_R && funct == 6'b000011) ? 4'b0010: 4'bz,
-                alu_s = (is_R && funct == 6'b000010) ? 4'b0100: 4'bz,
+                alu_s = (is_R && funct == 6'b000011) ? 4'b0001: 4'bz,
+                alu_s = (is_R && funct == 6'b000010) ? 4'b0010: 4'bz,
 
                 // not R
                 alu_s = (!is_R && op == 6'b001000) ? 4'b0101: 4'bz,
@@ -95,15 +95,15 @@ module controller(
 
         assign bne = (!is_R && op == 6'b000101);
 
-        assign RAM_STO = (!is_R && op == 6'b100001);
+        assign RAM_STO = (!is_R && op == 6'b101011);
 
         assign RAM_LOAD = (!is_R && op == 6'b100001) || (!is_R && op == 6'b100011);
 
-        assign hald_word = (!is_R && op == 6'b101011);
+        assign hald_word = (!is_R && op == 6'b100001);
         
         assign branch = (!is_R && (op == 6'b000110 || op == 6'b000100 || op == 6'b000101));
 
-        assign unbranch = (!is_R && (op == 6'b100001 || op == 6'b100011 || op == 6'b101011));
+        assign unbranch = (!is_R && (op == 6'b000010 || op == 6'b000011)) || (is_R && (funct == 6'b001000));
         
         assign syscall = (is_R && funct == 6'b001100);
 endmodule

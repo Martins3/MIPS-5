@@ -78,7 +78,7 @@ module data_route(
     wire [11:0] pc_4_id;
     wire [31:0] instruction_id;
     wire clear_if_id;
-    assign clear_if_id = (!bubble) && rst;
+    assign clear_if_id = (!bubble) || rst;
     IF_ID if_id(pc_4, instruction, ctrl_clash, go, clear_if_id, clk, pc_4_id, instruction_id);
 
     wire [1:0]rA_t;
@@ -205,7 +205,7 @@ module data_route(
     wire[1:0] rW_t;
     wire RAM_LOAD;
     assign half_word = ctrl_msg_mem[2];
-    assign RAM_STO = ctrl_msg[3];
+    assign RAM_STO = ctrl_msg_mem[3];
     assign syscall_mem = ctrl_msg_mem[8];
     assign WE_mem = ctrl_msg_mem[9];
     assign wc_mem = ctrl_msg_mem[11:10];
@@ -221,7 +221,7 @@ module data_route(
     assign byte_choose = alu_out[0];
     assign ram_addr = alu_out[6:1];
     wire [31:0] ram_word;
-    DM dm_0(ram_addr, ram_addr_dispaly, alu_out, RAM_STO, 2'b11, rst, clk, ram_word, ram_display);
+    DM dm_0(ram_addr, ram_addr_dispaly, B_mem, RAM_STO, 2'b11, rst, clk, ram_word, ram_display);
 
     wire [31:0] ram_word_se;
     word_ctrl w_c_0(byte_choose, half_word, ram_word, ram_word_se);

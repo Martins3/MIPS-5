@@ -14,7 +14,7 @@ module IF_ID(
     );
 
     wire go;
-    assign go = go_one | go_two;
+    assign go = go_one & go_two;
     initial begin
         pc_4_out = 0;
         instruction_out = 0;
