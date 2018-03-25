@@ -1,4 +1,3 @@
-
 `timescale 1ns / 1ps
 module data_route(
     input clk1, 
@@ -21,6 +20,7 @@ module data_route(
     wire [31:0] ram_display;
    
 ////////////////////////////////////////////////////////////////////////////////
+
 
 /////////////////////Declaration////////////////////////////////////////////////
     wire [11:0] npc;
@@ -51,7 +51,42 @@ module data_route(
     wire halt;
     assign go = stop && halt;
     stop_ctrl stop_ctrl_0(clk, continue, stop_g, stop);
+
+    // dynamic branch predict
 ////////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////动态分支预测///////////////////////////////////////////
+    wire branch;
+    wire unbranch;
+    wire condi_suc;
+    wire [11:0] pc_4;
+    wire [11:0] pc_4_exe;
+    wire [11:0] predict_addr;
+    wire [11:0] instruction_addr_if;
+    wire [11:0] instruction_addr_id;
+    wire [11:0] instruction_addr_exe;
+    wire [11:0] query_ins_addr;
+
+    assign query_ins_addr = pc_4;
+
+    wire predict_jump;
+    MUX_2 #12 (predict_jump, pc_4, predict_addr, instruction_addr_if);
+    wire is_branch;
+    assign is_branch = branch || unbranch;
+
+    wire insert_ins_addr;
+    wire insert_ins_next_addr;
+    wire is_suc;
+    assign is_suc = unbranch || condi_suc;
+    assign insert_ins_addr = pc_4_exe;
+    assign insert_ins_next_addr = npc; 
+
+    BHT bht(clk, 
+        insert_ins_addr, insert_ins_next_addr, is_branch, is_suc, 
+    	query_ins_addr, 
+        predict_addr, predict_jump);
+///////////////////////////////.////////////////////////////////////////////////
 
 /////////////////////////////////IF Area////////////////////////////////////////
     // pc 
@@ -61,7 +96,6 @@ module data_route(
     wire pc_enable = halt && stop && (!bubble);
     program_counter p_c_0(pc_in, clk, rst, pc_enable, pc);
     wire [9:0]addr;
-    wire [11:0] pc_4;
     assign addr = pc[11:2];
     assign pc_4 = pc + 4;
     // IM
@@ -70,7 +104,7 @@ module data_route(
     // ctrl
    
     wire n_ctrl_clash;
-    MUX_2 #12 mux_2_123(n_ctrl_clash, npc, pc_4, pc_in, 1'b0);
+    MUX_2 #12 mux_2_123(n_ctrl_clash, npc, instruction_addr_if, pc_in, 1'b0);
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -80,7 +114,9 @@ module data_route(
     wire [31:0] instruction_id;
     wire clear_if_id;
     assign clear_if_id = (!bubble) || rst;
-    IF_ID if_id(pc_4, instruction, ctrl_clash, go, clear_if_id, clk, pc_4_id, instruction_id);
+    IF_ID if_id(pc_4, instruction, instruction_addr_id,
+    ctrl_clash, go, clear_if_id, clk, 
+    pc_4_id, instruction_id, instruction_addr_if);
 
     wire [1:0]rA_t;
     RA_ctrl r_c_0_0(instruction_id, rA_t);
@@ -110,11 +146,11 @@ module data_route(
     wire [31:0] A_exe_ori;
     wire [31:0] B_exe_ori;
     wire [31:0] instruction_exe;
-    wire [11:0] pc_4_exe;
     wire [3:0] redirection_ctrl_exe;
     wire clear_id_exe = bubble | ctrl_clash | rst;
-    ID_EXE id_ex(pc_4_id, instruction_id, A_id, B_id, redirection_ctrl_id, go, clear_id_exe, clk,
-    pc_4_exe, instruction_exe, A_exe_ori, B_exe_ori, redirection_ctrl_exe);
+    ID_EXE id_ex(pc_4_id, instruction_id, A_id, B_id, redirection_ctrl_id, instruction_addr_id,
+    go, clear_id_exe, clk,
+    pc_4_exe, instruction_exe, A_exe_ori, B_exe_ori, redirection_ctrl_exe, instruction_addr_exe);
     // go clear_one clear_two 
 
     // should we change the instruction in the verilog
@@ -131,8 +167,6 @@ module data_route(
     wire RAM_STO_exe;
     wire RAM_LOAD_exe;
     wire half_word_exe;
-    wire branch;
-    wire unbranch;
     wire syscall_t_exe;
     controller controller_0(instruction_exe, 
     rW_t_exe, WE_exe, wc_exe, Y_t, alu_s, PC_MUX_2, PC_MUX_3, blez, beq, bne, RAM_STO_exe, RAM_LOAD_exe, half_word_exe, branch, unbranch, syscall_t_exe);
@@ -171,7 +205,6 @@ module data_route(
    
 
 
-    wire condi_suc;
     condi_jump c_j_0(A_exe, B_exe, blez, beq, bne, condi_suc);
 
     wire strong_halt;
@@ -187,7 +220,7 @@ module data_route(
     total_cycles, uncondi_num, condi_num, condi_suc_num, SyscallOut);
 
     npc_generator np_0(instruction_exe, A_exe, pc_4_exe, condi_suc, PC_MUX_2, PC_MUX_3, npc);
-    assign n_ctrl_clash = (npc == pc_4_exe);
+    assign n_ctrl_clash = (npc == instruction_addr_exe);
     assign ctrl_clash = !n_ctrl_clash;
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -251,4 +284,6 @@ module data_route(
     condi_suc_num, SyscallOut, show_pc, clk1, 
     AN, SEG);
 ////////////////////////////////////////////////////////////////////////////////
+
+
 endmodule

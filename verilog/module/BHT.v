@@ -16,8 +16,8 @@ module BHT(
     input is_suc,
 
 	input [11:0] query_ins_addr,
-    output [11:0] prediect_addr,
-    output prediect_jump
+    output [11:0] predict_addr,
+    output predict_jump
 	);
 
 
@@ -54,15 +54,15 @@ module BHT(
         wire jump_7;
         assign jump_7 = (query_ins_addr == addr[7]) && valid[7] && (history[7] == 2'b01 || history[7] == 2'b11);
 
-        assign prediect_jump = jump_0 || jump_1 ||  jump_2 || jump_3 || jump_4 || jump_5 || jump_6 || jump_7;
-        assign  prediect_addr = jump_0 ? next_addr[0] : 12'bz,
-                prediect_addr = jump_1 ? next_addr[1] : 12'bz,
-                prediect_addr = jump_2 ? next_addr[2] : 12'bz,
-                prediect_addr = jump_3 ? next_addr[3] : 12'bz,
-                prediect_addr = jump_4 ? next_addr[4] : 12'bz,
-                prediect_addr = jump_5 ? next_addr[5] : 12'bz,
-                prediect_addr = jump_6 ? next_addr[6] : 12'bz,
-                prediect_addr = jump_7 ? next_addr[7] : 12'bz;
+        assign predict_jump = jump_0 || jump_1 ||  jump_2 || jump_3 || jump_4 || jump_5 || jump_6 || jump_7;
+        assign  predict_addr = jump_0 ? next_addr[0] : 12'bz,
+                predict_addr = jump_1 ? next_addr[1] : 12'bz,
+                predict_addr = jump_2 ? next_addr[2] : 12'bz,
+                predict_addr = jump_3 ? next_addr[3] : 12'bz,
+                predict_addr = jump_4 ? next_addr[4] : 12'bz,
+                predict_addr = jump_5 ? next_addr[5] : 12'bz,
+                predict_addr = jump_6 ? next_addr[6] : 12'bz,
+                predict_addr = jump_7 ? next_addr[7] : 12'bz;
     ////////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////// insert ////////////////////////////////////

@@ -27,12 +27,11 @@
 
 
 # todo
-1. 创建的出来的BHT 表格
-    1. 
 2. 更新bubble的逻辑
     1. 判断npc 和 next_ins_pc 是否相等
 3. 增加两个缓冲区间存储 next_ins_pc 的内容
 4. 更新pc_in 的逻辑
-    1. 当出现的ctrl_clash 的时候， 使用npc, 否则使用查询的表格中间的结果
+    1. 当出现的ctrl_clash 的时候， 使用npc
+    2. 当未出现的时候， 使用 predict_addr
+    3. 增加的一个mux 处理， 当表格没有缓冲该项目 或者 不应该跳转的 just predict_jump
 
-5. 使用pc 作为当前的指令映射地址 
