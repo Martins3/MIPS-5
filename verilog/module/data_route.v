@@ -218,8 +218,8 @@ module data_route(
 
     wire byte_choose;
     wire [5:0] ram_addr;
-    assign byte_choose = alu_out[0];
-    assign ram_addr = alu_out[6:1];
+    assign byte_choose = alu_out[1];
+    assign ram_addr = alu_out[7:2];
     wire [31:0] ram_word;
     DM dm_0(ram_addr, ram_addr_dispaly, B_mem, RAM_STO, 2'b11, rst, clk, ram_word, ram_display);
 

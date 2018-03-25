@@ -16,8 +16,8 @@ module DM(
 
 	wire [5:0] rA, rB;
 
-	assign rA = _rA >> 1;
-	assign rB = _rB >> 1;
+	assign rA = _rA;
+	assign rB = _rB;
 
 	initial begin
 		for (i=0; i<64; i=i+1) data[i] <= 'h00000001;
