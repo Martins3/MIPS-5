@@ -19,6 +19,7 @@ module sim_buffer();
         go_two = 1;
         # 50 clear = 1;
         # 20 clear = 0;
+
     end
     
      

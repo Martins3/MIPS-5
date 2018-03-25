@@ -14,7 +14,7 @@ module IM(
 		for (i=0;i<1024;i=i+1) data[i] = 'h00000000;
 	end
 
-	initial $readmemh("/home/martin/X-Brain/sys_design/documents/cc/verilog/test/LH.hex", data);
+	initial $readmemh("/home/martin/X-Brain/sys_design/documents/cc/verilog/test/benchmark_ccmb.hex", data);
 
 	assign D_out = data[A];
 

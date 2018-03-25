@@ -5,7 +5,8 @@ module data_route(
     input [5:0]ram_addr_dispaly,
     input rst, 
     input frequency, 
-    input[2:0] display, 
+    input[2:0] display,
+    input continue,
     
     output [7:0] AN, 
     output [7:0] SEG
@@ -38,17 +39,18 @@ module data_route(
     wire [4:0] rw_mem;
     
     wire bubble;
-    wire stop_g;
     wire [31:0] A_mem;
     wire [31:0] B_mem;
     
     wire [31:0] word_wb;
 
     // when stop or halt, freeze all the buffer
+    wire stop_g;
     wire go;
     wire stop;
     wire halt;
     assign go = stop && halt;
+    stop_ctrl stop_ctrl_0(clk, continue, stop_g, stop);
 ////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////IF Area////////////////////////////////////////
@@ -56,7 +58,6 @@ module data_route(
     wire [11:0]pc;
     
     wire [11:0] pc_in;
-    assign stop = 1'b1;
     wire pc_enable = halt && stop && (!bubble);
     program_counter p_c_0(pc_in, clk, rst, pc_enable, pc);
     wire [9:0]addr;
@@ -174,7 +175,7 @@ module data_route(
     condi_jump c_j_0(A_exe, B_exe, blez, beq, bne, condi_suc);
 
     wire strong_halt;
-    assign strong_halt = stop_g & halt;
+    assign strong_halt = stop & halt;
     wire [31:0]total_cycles;
     wire [31:0]uncondi_num;
     wire [31:0]condi_num;
