@@ -1,0 +1,23 @@
+
+        /////////////////////////////////7//////////////////////////////////////
+            wire insert_hit_7;
+            wire insert_suc_7;
+            wire insert_fail_7;
+            assign insert_hit_7 = is_branch && (insert_ins_addr == addr[7]) && valid[7];
+            assign insert_suc_7 = insert_hit_7 && is_suc;
+            assign insert_fail_7 = insert_hit_7 && !is_suc;
+        ////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////insert 7//////////////////////////////////////
+            if(insert_suc_7) begin
+                if(history[7] != two'boneone) begin
+                    history[7] = history[7] + one;
+                end
+            end
+
+            if(insert_fail_7) begin
+                if(history[7] != two'bzerozero) begin
+                    history[7] = history[7] - one;
+                end
+            end
+        ////////////////////////////////////////////////////////////////////////
