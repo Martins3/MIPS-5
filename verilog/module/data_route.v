@@ -6,6 +6,7 @@ module data_route(
     input frequency, 
     input[2:0] display,
     input continue,
+    input is_benchmark,
     
     output [7:0] AN, 
     output [7:0] SEG
@@ -48,7 +49,7 @@ module data_route(
     wire go;
     wire stop;
     wire halt;
-    assign go = stop && halt;
+    assign go = (stop && halt) || rst;
     stop_ctrl stop_ctrl_0(clk, continue, stop_g, stop);
 
     // dynamic branch predict
@@ -62,29 +63,48 @@ module data_route(
     wire [11:0] pc_4;
     wire [11:0] pc_4_exe;
     wire [11:0] predict_addr;
+    wire [11:0] instruction_addr_if_fake;
     wire [11:0] instruction_addr_if;
     wire [11:0] instruction_addr_id;
     wire [11:0] instruction_addr_exe;
     wire [11:0] query_ins_addr;
 
+    
+
     assign query_ins_addr = pc_4;
 
-    wire predict_jump;
-    MUX_2 #12 mux_2_1(predict_jump, pc_4, predict_addr, instruction_addr_if, 1'b0);
+    wire predict_jump_if;
+    wire predict_jump_id;
+    wire predict_jump_exe;
+    MUX_2 #12 mux_2_1(predict_jump_if, pc_4, predict_addr, instruction_addr_if_fake, 1'b0);
+    MUX_2 #12 mux_2_2(is_benchmark, instruction_addr_if_fake, pc_4, instruction_addr_if, 1'b0);
     wire is_branch;
     assign is_branch = branch || unbranch;
 
     wire [11:0] insert_ins_addr;
     wire [11:0] insert_ins_next_addr;
     wire is_suc;
-    assign is_suc = unbranch || condi_suc;
+    wire is_jump;
+    assign is_jump = unbranch || condi_suc;
+    assign is_suc = is_jump;
+    reg [31:0] suc_counter;
+    
+    initial begin
+        suc_counter = 0;
+    end
+    always @(posedge clk) begin
+        if(is_jump == predict_jump_exe && is_jump) begin
+            suc_counter = suc_counter + 1;
+        end
+    end
+    
     assign insert_ins_addr = pc_4_exe;
-    assign insert_ins_next_addr = npc; 
+    assign insert_ins_next_addr = npc;
 
     BHT bht(clk, 
         insert_ins_addr, insert_ins_next_addr, is_branch, is_suc, 
     	query_ins_addr, 
-        predict_addr, predict_jump);
+        predict_addr, predict_jump_if);
 ///////////////////////////////.////////////////////////////////////////////////
 
 /////////////////////////////////IF Area////////////////////////////////////////
@@ -113,9 +133,9 @@ module data_route(
     wire [31:0] instruction_id;
     wire clear_if_id;
     assign clear_if_id = (!bubble) || rst;
-    IF_ID if_id(pc_4, instruction, instruction_addr_if,
+    IF_ID if_id(pc_4, instruction, instruction_addr_if, predict_jump_if,
     ctrl_clash, go, clear_if_id, clk, 
-    pc_4_id, instruction_id, instruction_addr_id);
+    pc_4_id, instruction_id, instruction_addr_id, predict_jump_id);
 
     wire [1:0]rA_t;
     RA_ctrl r_c_0_0(instruction_id, rA_t);
@@ -147,9 +167,9 @@ module data_route(
     wire [31:0] instruction_exe;
     wire [3:0] redirection_ctrl_exe;
     wire clear_id_exe = bubble | ctrl_clash | rst;
-    ID_EXE id_ex(pc_4_id, instruction_id, A_id, B_id, redirection_ctrl_id, instruction_addr_id,
+    ID_EXE id_ex(pc_4_id, instruction_id, A_id, B_id, redirection_ctrl_id, instruction_addr_id, predict_jump_id,
     go, clear_id_exe, clk,
-    pc_4_exe, instruction_exe, A_exe_ori, B_exe_ori, redirection_ctrl_exe, instruction_addr_exe);
+    pc_4_exe, instruction_exe, A_exe_ori, B_exe_ori, redirection_ctrl_exe, instruction_addr_exe, predict_jump_exe);
     // go clear_one clear_two 
 
     // should we change the instruction in the verilog
@@ -269,7 +289,6 @@ module data_route(
     MEM_WB mem_wb(syscall_mem, WE_mem, rw_mem, A_mem, word_mem, 
     go, rst, clk, 
     syscall_wb, WE_wb, rw_wb, A_wb, word_wb);
-
     
     
     assign halt = !((A_wb == 32'ha) && syscall_wb);

@@ -7,6 +7,7 @@ module sim_data_route();
     reg frequency; 
     reg[2:0] display; 
     reg continue;
+    reg is_benchmark;
     wire [7:0] AN;
     wire [7:0] SEG;
 
@@ -18,6 +19,7 @@ module sim_data_route();
         frequency = 1;
         display = 3'b000;
         continue = 0;
+        is_benchmark = 0;
 
         # 20000 continue = 1;
         # 1 continue = 0;
@@ -30,11 +32,14 @@ module sim_data_route();
 
         # 10000 continue = 1;
         # 1 continue = 0;
+
+        # 100 rst = 1;
+        # 100 rst = 0;
     end
      
     always #1 clk1 <= ~clk1;
 
-    data_route data_route_0(clk1, ram_addr_dispaly, rst, frequency, display, continue, AN, SEG);
+    data_route data_route_0(clk1, ram_addr_dispaly, rst, frequency, display, continue, is_benchmark, AN, SEG);
 
     
     

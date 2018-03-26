@@ -35,7 +35,7 @@ module BHT(
         assign jump_3 = (query_ins_addr == addr[3]) && valid[3] && (history[3] == 2'b10 || history[3] == 2'b11);
 
         wire jump_4;
-        assign jump_4 = (query_ins_addr == addr[4]) && valid[4] && (history[4] == 2'b0 || history[4] == 2'b11);
+        assign jump_4 = (query_ins_addr == addr[4]) && valid[4] && (history[4] == 2'b10 || history[4] == 2'b11);
 
         wire jump_5;
         assign jump_5 = (query_ins_addr == addr[5]) && valid[5] && (history[5] == 2'b10 || history[5] == 2'b11);
@@ -180,7 +180,7 @@ module BHT(
             next_addr[max_index] <= insert_ins_next_addr;
             LRU[max_index] <= 0;
             valid[max_index] <= 1;
-            history[max_index] <= 2'b11;
+            history[max_index] <= 2'b1;
             
             // others
             if(max_index != 0) begin  LRU[0] <= LRU[0] + 1; end
