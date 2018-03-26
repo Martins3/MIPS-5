@@ -17,17 +17,18 @@ module sim_data_route();
         rst = 0;
         frequency = 1;
         display = 3'b000;
+        continue = 0;
+
+        # 20000 continue = 1;
+        # 1 continue = 0;
 
         # 10000 continue = 1;
         # 1 continue = 0;
 
-        # 3000 continue = 1;
+        # 10000 continue = 1;
         # 1 continue = 0;
 
-        # 3000 continue = 1;
-        # 1 continue = 0;
-
-        # 3000 continue = 1;
+        # 10000 continue = 1;
         # 1 continue = 0;
     end
      

@@ -15,6 +15,7 @@ module IM(
 	end
 
 	initial $readmemh("/home/martin/X-Brain/sys_design/documents/cc/verilog/test/benchmark_ccmb.hex", data);
+	// initial $readmemh("/home/martin/X-Brain/sys_design/documents/cc/verilog/test/dynamic_prediction.hex", data);
 
 	assign D_out = data[A];
 

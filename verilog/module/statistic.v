@@ -36,11 +36,11 @@ module statistic(
 
     always @(posedge clk) begin
       if(rst) begin
-        total_cycles = 0;
-        uncondi_num = 0;
-        condi_num = 0;
-        condi_suc_num = 0;
-        SyscallOut = 0;
+        total_cycles <= 0;
+        uncondi_num <= 0;
+        condi_num <= 0;
+        condi_suc_num <= 0;
+        SyscallOut <= 0;
       end else begin
         if(strong_halt) begin
             total_cycles = total_cycles + 1;

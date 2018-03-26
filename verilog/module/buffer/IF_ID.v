@@ -30,7 +30,7 @@ module IF_ID(
     
     MUX_2 #12 mux_1(clear, pc_4, 12'h000, pc_4_out_t, 1'b0);
     MUX_2 #32 mux_2(clear, instruction, 32'h0000_0000, instruction_out_t, 1'b0);
-    MUX_2 #12 mux_100(clear, addr, 32'h000, addr_out_t, 1'b0);
+    MUX_2 #12 mux_100(clear, addr, 12'h000, addr_out_t, 1'b0);
 
    
 

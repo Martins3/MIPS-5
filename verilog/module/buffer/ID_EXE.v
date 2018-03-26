@@ -42,7 +42,7 @@ module ID_EXE(
     MUX_2 #32 mux_3(clear, A, 32'h0000_0000, A_out_t, 1'b0);
     MUX_2 #32 mux_4(clear, B, 32'h0000_0000, B_out_t, 1'b0);
     MUX_2 #4 mux_5(clear, redirect_ctrl, 4'h0000, redirect_ctrl_out_t, 1'b0);
-    MUX_2 #12 mux_100(clear, addr, 32'h000, addr_out_t, 1'b0);
+    MUX_2 #12 mux_100(clear, addr, 12'h000, addr_out_t, 1'b0);
 
     always @(posedge clk) begin
         if(go) begin

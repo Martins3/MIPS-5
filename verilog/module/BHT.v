@@ -1,12 +1,4 @@
 `timescale 1ns / 1ps
-
-// 正确的初始化的数值
-// 注愝一个问题， 表格中间淘汰坪会由于新加入的表格， 所以valid 坪会在初始化的时候坘戝0
-// 使用 pc_4 作为查询的
-
-
-// maybe may lead some probelm
-
 module BHT(
     input clk,
 
@@ -25,34 +17,34 @@ module BHT(
 	reg [31:0] addr [0:7];
     reg [31:0] next_addr[0:7];
     reg [1:0] history[0:7];
+    reg [31:0] LRU[0:7];    
 
-    reg [2:0] fifo;
 
     
     ////////////////////////////////query///////////////////////////////////////
         wire jump_0;
-        assign jump_0 = (query_ins_addr == addr[0]) && valid[0] && (history[0] == 2'b01 || history[0] == 2'b11);
+        assign jump_0 = (query_ins_addr == addr[0]) && valid[0] && (history[0] == 2'b10 || history[0] == 2'b11);
 
         wire jump_1;
-        assign jump_1 = (query_ins_addr == addr[1]) && valid[1] && (history[1] == 2'b01 || history[1] == 2'b11);
+        assign jump_1 = (query_ins_addr == addr[1]) && valid[1] && (history[1] == 2'b10 || history[1] == 2'b11);
 
         wire jump_2;
-        assign jump_2 = (query_ins_addr == addr[2]) && valid[2] && (history[2] == 2'b01 || history[2] == 2'b11);
+        assign jump_2 = (query_ins_addr == addr[2]) && valid[2] && (history[2] == 2'b10 || history[2] == 2'b11);
 
         wire jump_3;
-        assign jump_3 = (query_ins_addr == addr[3]) && valid[3] && (history[3] == 2'b01 || history[3] == 2'b11);
+        assign jump_3 = (query_ins_addr == addr[3]) && valid[3] && (history[3] == 2'b10 || history[3] == 2'b11);
 
         wire jump_4;
-        assign jump_4 = (query_ins_addr == addr[4]) && valid[4] && (history[4] == 2'b01 || history[4] == 2'b11);
+        assign jump_4 = (query_ins_addr == addr[4]) && valid[4] && (history[4] == 2'b0 || history[4] == 2'b11);
 
         wire jump_5;
-        assign jump_5 = (query_ins_addr == addr[5]) && valid[5] && (history[5] == 2'b01 || history[5] == 2'b11);
+        assign jump_5 = (query_ins_addr == addr[5]) && valid[5] && (history[5] == 2'b10 || history[5] == 2'b11);
 
         wire jump_6;
-        assign jump_6 = (query_ins_addr == addr[6]) && valid[6] && (history[6] == 2'b01 || history[6] == 2'b11);
+        assign jump_6 = (query_ins_addr == addr[6]) && valid[6] && (history[6] == 2'b10 || history[6] == 2'b11);
 
         wire jump_7;
-        assign jump_7 = (query_ins_addr == addr[7]) && valid[7] && (history[7] == 2'b01 || history[7] == 2'b11);
+        assign jump_7 = (query_ins_addr == addr[7]) && valid[7] && (history[7] == 2'b10 || history[7] == 2'b11);
 
         assign predict_jump = jump_0 || jump_1 ||  jump_2 || jump_3 || jump_4 || jump_5 || jump_6 || jump_7;
         assign  predict_addr = jump_0 ? next_addr[0] : 12'bz,
@@ -143,6 +135,29 @@ module BHT(
         assign insert_no_hit = is_branch && !(insert_hit_0 || insert_hit_1 || insert_hit_2 || insert_hit_3 || insert_hit_4 || insert_hit_5 || insert_hit_6 || insert_hit_7);
     ////////////////////////////////////////////////////////////////////////////
 
+    ///////////////////////////////// find max/////////////////////////////////
+        // 计算出来 正确的佝置 
+        wire  [2:0] i_12;
+        wire  [2:0] i_34;
+        wire  [2:0] i_56;
+        wire  [2:0] i_78;
+
+        wire [2:0] i_1234;
+        wire [2:0] i_5678;
+
+        wire [2:0] max_index;
+
+        assign i_12 =  LRU[0] >= LRU[1] ? 3'b000 : 3'b001;
+        assign i_34 =  LRU[2] >= LRU[3] ? 3'b010 : 3'b011;
+        assign i_56 =  LRU[4] >= LRU[5] ? 3'b100 : 3'b101;
+        assign i_78 =  LRU[6] >= LRU[7] ? 3'b110 : 3'b111;
+
+        assign i_1234 =  LRU[i_12] >= LRU[i_34] ? i_12 : i_34;
+        assign i_5678 =  LRU[i_56] >= LRU[i_78] ? i_56 : i_78;
+
+        assign max_index =  LRU[i_1234] >= LRU[i_5678] ? i_1234 : i_5678;
+    ////////////////////////////////////////////////////////////////////////////
+
 
     // 修改寄存器中间的数值必须使用 reg 
 
@@ -152,46 +167,128 @@ module BHT(
             valid[i] <= 0;
             addr[i] <= 0;
             next_addr[i] <= 0;
-            history[i] <= 1;
-            fifo[i] <= 0;
+            history[i] <= 2'b10;
+            LRU[i] <= 0;
         end
 	end
 
 
 	always @(posedge clk) begin
         if(insert_no_hit) begin
-            fifo <= fifo + 1;
-            addr[fifo] <= insert_ins_addr; 
-            next_addr[fifo] <= insert_ins_next_addr;
-            valid[fifo] <= 1; 
+            // max_index : clear LRU, set addr and next addr 
+            addr[max_index] <= insert_ins_addr;
+            next_addr[max_index] <= insert_ins_next_addr;
+            LRU[max_index] <= 0;
+            valid[max_index] <= 1;
+            history[max_index] <= 2'b11;
+            
+            // others
+            if(max_index != 0) begin  LRU[0] <= LRU[0] + 1; end
+            if(max_index != 1) begin  LRU[1] <= LRU[1] + 1; end
+            if(max_index != 2) begin  LRU[2] <= LRU[2] + 1; end
+            if(max_index != 3) begin  LRU[3] <= LRU[3] + 1; end
+
+            if(max_index != 4) begin  LRU[4] <= LRU[4] + 1; end
+            if(max_index != 5) begin  LRU[5] <= LRU[5] + 1; end
+            if(max_index != 6) begin  LRU[6] <= LRU[6] + 1; end
+            if(max_index != 7) begin  LRU[7] <= LRU[7] + 1; end
         end
 
         //////////////////////////////insert//////////////////////////////////////
             //////////////////////////insert 0//////////////////////////////////////
                 if(insert_suc_0) begin
                     if(history[0] != 2'b11) begin
-                        history[0] = history[0] + 1;
+                        history[0] <= history[0] + 1;
                     end
+                    LRU[0] <= 0; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
 
                 if(insert_fail_0) begin
                     if(history[0] != 2'b00) begin
-                        history[0] = history[0] - 1;
+                        history[0] <= history[0] - 1;
                     end
+                    LRU[0] <= 0;
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
             ////////////////////////////////////////////////////////////////////////
 
             //////////////////////////insert 1//////////////////////////////////////
                 if(insert_suc_1) begin
                     if(history[1] != 2'b11) begin
-                        history[1] = history[1] + 1;
+                        history[1] <= history[1] + 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= 0; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
 
                 if(insert_fail_1) begin
                     if(history[1] != 2'b00) begin
-                        history[1] = history[1] - 1;
+                        history[1] <= history[1] - 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= 0; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
+                end
+            ////////////////////////////////////////////////////////////////////////
+
+
+            //////////////////////////insert 2//////////////////////////////////////
+                if(insert_suc_2) begin
+                    if(history[2] != 2'b11) begin
+                        history[2] <= history[2] + 1;
+                    end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= 0; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
+                end
+
+                if(insert_fail_2) begin
+                    if(history[2] != 2'b00) begin
+                        history[2] <= history[2] - 1;
+                    end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= 0; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
             ////////////////////////////////////////////////////////////////////////
 
@@ -200,12 +297,30 @@ module BHT(
                     if(history[3] != 2'b11) begin
                         history[3] = history[3] + 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= 0; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
 
                 if(insert_fail_3) begin
                     if(history[3] != 2'b00) begin
                         history[3] = history[3] - 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= 0; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
             ////////////////////////////////////////////////////////////////////////
 
@@ -215,12 +330,30 @@ module BHT(
                     if(history[4] != 2'b11) begin
                         history[4] = history[4] + 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= 0; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
 
                 if(insert_fail_4) begin
                     if(history[4] != 2'b00) begin
                         history[4] = history[4] - 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= 0; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
             ////////////////////////////////////////////////////////////////////////
 
@@ -229,12 +362,30 @@ module BHT(
                     if(history[5] != 2'b11) begin
                         history[5] = history[5] + 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= 0; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
 
                 if(insert_fail_5) begin
                     if(history[5] != 2'b00) begin
                         history[5] = history[5] - 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= 0; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
             ////////////////////////////////////////////////////////////////////////
 
@@ -243,12 +394,30 @@ module BHT(
                     if(history[6] != 2'b11) begin
                         history[6] = history[6] + 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= 0; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
 
                 if(insert_fail_6) begin
                     if(history[6] != 2'b00) begin
                         history[6] = history[6] - 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= 0; 
+                    LRU[7] <= LRU[7] + 1; 
                 end
             ////////////////////////////////////////////////////////////////////////
 
@@ -257,12 +426,30 @@ module BHT(
                     if(history[7] != 2'b11) begin
                         history[7] = history[7] + 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= 0; 
                 end
 
                 if(insert_fail_7) begin
                     if(history[7] != 2'b00) begin
                         history[7] = history[7] - 1;
                     end
+                    LRU[0] <= LRU[0] + 1; 
+                    LRU[1] <= LRU[1] + 1; 
+                    LRU[2] <= LRU[2] + 1; 
+                    LRU[3] <= LRU[3] + 1; 
+
+                    LRU[4] <= LRU[4] + 1; 
+                    LRU[5] <= LRU[5] + 1; 
+                    LRU[6] <= LRU[6] + 1; 
+                    LRU[7] <= 0; 
                 end
             ////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////

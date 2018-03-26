@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 module data_route(
     input clk1, 
-    input [5:0]ram_addr_dispaly,
+    input [5:0]ram_addr_display,
     input rst, 
     input frequency, 
     input[2:0] display,
@@ -18,7 +18,6 @@ module data_route(
     frequency_switch frequency_switch_0(clk1, clk, frequency);
     // 用于展示 ram
     wire [31:0] ram_display;
-   
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -71,12 +70,12 @@ module data_route(
     assign query_ins_addr = pc_4;
 
     wire predict_jump;
-    MUX_2 #12 (predict_jump, pc_4, predict_addr, instruction_addr_if);
+    MUX_2 #12 mux_2_1(predict_jump, pc_4, predict_addr, instruction_addr_if, 1'b0);
     wire is_branch;
     assign is_branch = branch || unbranch;
 
-    wire insert_ins_addr;
-    wire insert_ins_next_addr;
+    wire [11:0] insert_ins_addr;
+    wire [11:0] insert_ins_next_addr;
     wire is_suc;
     assign is_suc = unbranch || condi_suc;
     assign insert_ins_addr = pc_4_exe;
@@ -114,9 +113,9 @@ module data_route(
     wire [31:0] instruction_id;
     wire clear_if_id;
     assign clear_if_id = (!bubble) || rst;
-    IF_ID if_id(pc_4, instruction, instruction_addr_id,
+    IF_ID if_id(pc_4, instruction, instruction_addr_if,
     ctrl_clash, go, clear_if_id, clk, 
-    pc_4_id, instruction_id, instruction_addr_if);
+    pc_4_id, instruction_id, instruction_addr_id);
 
     wire [1:0]rA_t;
     RA_ctrl r_c_0_0(instruction_id, rA_t);
@@ -255,7 +254,7 @@ module data_route(
     assign byte_choose = alu_out[1];
     assign ram_addr = alu_out[7:2];
     wire [31:0] ram_word;
-    DM dm_0(ram_addr, ram_addr_dispaly, B_mem, RAM_STO, 2'b11, rst, clk, ram_word, ram_display);
+    DM dm_0(ram_addr, ram_addr_display, B_mem, RAM_STO, 2'b11, rst, clk, ram_word, ram_display);
 
     wire [31:0] ram_word_se;
     word_ctrl w_c_0(byte_choose, half_word, ram_word, ram_word_se);
