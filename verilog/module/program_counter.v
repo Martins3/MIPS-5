@@ -15,9 +15,9 @@ module program_counter(
     
     always @(posedge clk) begin
         if(rst) begin
-            pc = 0;
+            pc <= 0;
         end else if(enable) begin
-            pc = pc_in; 
+            pc <= pc_in; 
         end 
     end
     
