@@ -1,4 +1,3 @@
-
 `timescale 1ns / 1ps
 module redirection(
     input [4:0] rA,

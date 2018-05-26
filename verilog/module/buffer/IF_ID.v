@@ -1,4 +1,3 @@
-
 `timescale 1ns / 1ps
 module IF_ID(
     input [11:0] pc_4,

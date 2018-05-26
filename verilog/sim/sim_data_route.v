@@ -19,7 +19,7 @@ module sim_data_route();
         frequency = 1;
         display = 3'b000;
         continue = 0;
-        is_benchmark = 0;
+        is_benchmark = 1;
 
         # 20000 continue = 1;
         # 1 continue = 0;
